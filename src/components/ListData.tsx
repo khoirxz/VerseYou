@@ -1,9 +1,21 @@
 "use client";
 
+import { Root } from "@/types/result";
+import Image from "next/image";
 import { useEffect, useState } from "react";
+import { Skeleton } from "./ui/skeleton";
+
+type GreetingData = {
+  name: string;
+  sender: string; // Assuming sender is a string, could be an email or username
+  message: string;
+  music: string; // Assuming music is an ID or similar identifier
+  createdAt: string; // ISO date string
+};
 
 export default function ListData() {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<GreetingData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -16,8 +28,11 @@ export default function ListData() {
       const data = await response.json();
       // Store the data in state
       if (response.ok) {
+        setLoading(false);
         setData(data);
       } else {
+        // Handle error case
+        setLoading(false);
         console.error("Failed to fetch data:", data.error);
       }
     };
@@ -26,22 +41,75 @@ export default function ListData() {
   }, []);
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">List Data</h2>
+    <div>
       {/* List items will be rendered here */}
-      {data.length > 0 ? (
-        <ul className="space-y-2">
+      {loading ? (
+        <div className="space-y-2">
+          <Skeleton className="h-20 w-full rounded-sm" />
+          <Skeleton className="h-20 w-full rounded-sm" />
+          <Skeleton className="h-20 w-full rounded-sm" />
+        </div>
+      ) : data.length > 0 ? (
+        <div className="space-y-2">
           {data.map((item, index) => (
-            <li key={index} className="p-2 border rounded">
-              <h3 className="font-bold">{item.name}</h3>
-              <p>{item.message}</p>
-              <p className="text-sm text-gray-500">Music ID: {item.music}</p>
-            </li>
+            <Item key={index} item={item} />
           ))}
-        </ul>
+        </div>
       ) : (
         <p className="text-gray-500">No data available</p>
       )}
     </div>
   );
 }
+
+const Item = ({ item }: { item: GreetingData }) => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [data, setData] = useState<Root["tracks"]["items"][0] | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await fetch("/api/spotify/tracks/" + item.music, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setData(data);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [item]);
+
+  return (
+    <div className="flex flex-col gap-4 border rounded-lg p-4">
+      <div className="flex items-center space-x-4 mb-2">
+        {loading ? (
+          <Skeleton className="w-20 h-20 rounded-sm" />
+        ) : (
+          <Image
+            src={data?.album.images[0].url || ""}
+            alt="Album Cover"
+            width={80}
+            height={80}
+            priority
+            className="rounded-sm"
+          />
+        )}
+
+        <p>
+          {data?.name} - {data?.artists[0].name}
+        </p>
+      </div>
+
+      <div className="flex flex-col space-y-2 font-[family-name:var(--font-sil)]">
+        <p className="">To : {item.name}</p>
+        <p className="">{item.message}</p>
+      </div>
+    </div>
+  );
+};

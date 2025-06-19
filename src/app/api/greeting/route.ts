@@ -2,6 +2,7 @@ import { connectDB } from "@/lib/mongodb";
 import { Greeting } from "@/models/greeting";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
 export async function POST(request: Request) {
   try {
@@ -30,6 +31,8 @@ export async function POST(request: Request) {
       music,
     });
 
+    revalidatePath("/greeting");
+
     return Response.json(saved, {
       status: 201,
     });
@@ -48,6 +51,7 @@ export async function GET() {
     return Response.json(greetings, { status: 200 });
   } catch (error) {
     console.error("Error fetching greetings:", error);
+
     return new Response(
       JSON.stringify({ error: "Failed to fetch greetings" }),
       {

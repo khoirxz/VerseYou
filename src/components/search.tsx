@@ -84,7 +84,7 @@ export default function Search({ onChange }: SearchProps) {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto relative search-container">
+    <div className="w-full relative search-container">
       <div className="relative">
         <div className="relative">
           <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
