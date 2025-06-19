@@ -1,12 +1,11 @@
 import { getSpotifyAccessToken } from "@/lib/spotify";
 import { Root } from "@/types/result";
 
-export async function GET(
-  _req: Request,
-  { params }: { params: { id: string } }
-) {
+import { NextRequest } from "next/server";
+
+export async function GET(req: NextRequest) {
+  const id = req.nextUrl.pathname.match(/\/tracks\/([^/]+)/)?.[1] ?? "";
   const token = await getSpotifyAccessToken();
-  const { id } = await params;
 
   const res = await fetch(`https://api.spotify.com/v1/tracks/${id}?market=ID`, {
     headers: {
