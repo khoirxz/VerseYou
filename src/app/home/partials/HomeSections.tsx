@@ -26,27 +26,27 @@ export default function HomeSection({ session }: { session: Session }) {
   );
 
   useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch("/api/greeting", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await response.json();
-      // Store the data in state
-      if (response.ok) {
-        setLoading(false);
-        setData(data);
-      } else {
-        // Handle error case
-        setLoading(false);
-        console.error("Failed to fetch data:", data.error);
-      }
-    };
-
     fetchData();
   }, []);
+
+  const fetchData = async () => {
+    const response = await fetch("/api/greeting", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    // Store the data in state
+    if (response.ok) {
+      setLoading(false);
+      setData(data);
+    } else {
+      // Handle error case
+      setLoading(false);
+      console.error("Failed to fetch data:", data.error);
+    }
+  };
 
   const handleSubmit: React.FormEventHandler = async (e) => {
     e.preventDefault();
@@ -66,6 +66,7 @@ export default function HomeSection({ session }: { session: Session }) {
       setName("");
       setMessage("");
       setMusic({} as MusicType["tracks"]["items"][0]); // Reset music selection
+      fetchData(); // Refresh the list after submission
     }
   };
 
