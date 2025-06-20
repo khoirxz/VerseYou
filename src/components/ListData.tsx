@@ -4,42 +4,15 @@ import { Root } from "@/types/result";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Skeleton } from "./ui/skeleton";
+import { GreetingData } from "@/types/greeting";
 
-type GreetingData = {
-  name: string;
-  sender: string; // Assuming sender is a string, could be an email or username
-  message: string;
-  music: string; // Assuming music is an ID or similar identifier
-  createdAt: string; // ISO date string
-};
-
-export default function ListData() {
-  const [data, setData] = useState<GreetingData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch("/api/greeting", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await response.json();
-      // Store the data in state
-      if (response.ok) {
-        setLoading(false);
-        setData(data);
-      } else {
-        // Handle error case
-        setLoading(false);
-        console.error("Failed to fetch data:", data.error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
+export default function ListData({
+  data,
+  loading,
+}: {
+  data: GreetingData[];
+  loading: boolean;
+}) {
   return (
     <div>
       {/* List items will be rendered here */}
