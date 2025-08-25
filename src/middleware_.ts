@@ -1,12 +1,12 @@
 // middleware.ts
-import { withAuth } from "next-auth/middleware";
+// import { withAuth } from "next-auth/middleware";
 
-export default withAuth({
-  pages: {
-    signIn: "/auth",
-  },
-});
+// export default withAuth({
+//   pages: {
+//     signIn: "/auth",
+//   },
+// });
 
-export const config = {
-  matcher: ["/home"],
-};
+// export const config = {
+//   matcher: ["/home"],
+// };

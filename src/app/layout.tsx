@@ -1,21 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Shadows_Into_Light } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
+import Providers from "./providers";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const plusJakarta = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta-sans",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const shadowsIntoLight = Shadows_Into_Light({
-  variable: "--font-sil",
-  subsets: ["latin"],
-  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -30,9 +20,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${shadowsIntoLight.variable} antialiased`}>
-        {children}
+      <body className={`${plusJakarta.variable} antialiased`}>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

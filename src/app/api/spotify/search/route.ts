@@ -1,37 +1,26 @@
-import { getSpotifyAccessToken } from "@/lib/spotify";
-import { Root } from "@/types/result";
+import { searchTracks } from "@/lib/spotify";
+export const runtime = "nodejs";
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const query = searchParams.get("q") || "";
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const q = searchParams.get("q")?.trim() ?? "";
+  const limit = Number(searchParams.get("limit") ?? 10);
+  const offset = Number(searchParams.get("offset") ?? 0);
+  if (!q) return Response.json({ items: [], nextOffset: null });
 
-  if (!query) {
-    return new Response(
-      JSON.stringify({
-        error: 'Query parameter "q" is required',
-      }),
-      {
-        status: 400,
-      }
-    );
-  }
+  // panggil util spotify
+  const items = await searchTracks(q, { limit, offset });
 
-  const token = await getSpotifyAccessToken();
+  // infinite scroll
+  const nextOffset = items.length === limit ? offset + limit : null;
 
-  const res = await fetch(
-    `https://api.spotify.com/v1/search?q=${encodeURIComponent(
-      query
-    )}&type=track&market=ID&limit=10`,
+  // cache off, search tidak perlu ini
+  return Response.json(
+    { items, nextOffset },
     {
       headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+        "Cache-Control": "no-cache",
       },
     }
   );
-
-  const data: Root = await res.json();
-  return new Response(JSON.stringify(data.tracks.items), {
-    status: res.ok ? 200 : res.status,
-  });
 }

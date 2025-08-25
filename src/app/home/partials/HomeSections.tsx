@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import Search from "@/components/search";
 import ListData from "@/components/ListData";
+
 import { Root as MusicType } from "@/types/result";
 import { GreetingData } from "@/types/greeting";
 import { Session } from "@/types/session";
@@ -51,34 +52,44 @@ export default function HomeSection({ session }: { session: Session }) {
   const handleSubmit: React.FormEventHandler = async (e) => {
     e.preventDefault();
 
-    const res = await fetch("/api/greeting", {
-      method: "POST",
-      body: JSON.stringify({ name, message, music: music.id }),
-    });
+    try {
+      setLoading(true);
+      const res = await fetch("/api/greeting", {
+        method: "POST",
+        body: JSON.stringify({ name, message, music: music.id }),
+      });
 
-    const data = await res.json();
-    if (!res.ok) {
-      console.error("Failed to save greeting:", data.error);
-      return;
-    } else {
-      console.log("Greeting saved successfully:", data);
-      setOpen(false);
-      setName("");
-      setMessage("");
-      setMusic({} as MusicType["tracks"]["items"][0]); // Reset music selection
-      fetchData(); // Refresh the list after submission
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error("Failed to save greeting:", data.error);
+        return;
+      } else {
+        console.log("Greeting saved successfully:", data);
+        setOpen(false);
+        setName("");
+        setMessage("");
+        setMusic({} as MusicType["tracks"]["items"][0]); // Reset music selection
+        fetchData(); // Refresh the list after submission
+      }
+    } catch (error) {
+      console.error("Error saving greeting:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <>
-      <div className="flex flex-row justify-between items-center mb-6">
+      <div className="flex flex-col justify-between items-center mb-6">
         {session?.user ? (
           <Button className="my-4" onClick={() => setOpen(true)}>
             Kirim Pesan
           </Button>
         ) : (
-          <Button className="my-4">Masuk untuk mengirim pesan</Button>
+          <div className="my-4 rounded-md p-4 bg-zinc-100">
+            Masuk untuk mengirim pesan
+          </div>
         )}
       </div>
 

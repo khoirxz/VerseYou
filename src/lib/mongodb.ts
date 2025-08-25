@@ -1,30 +1,42 @@
-import mongoose from "mongoose";
+import { MongoClient } from "mongodb";
 
-const MONGODB_USER = process.env.MONGODB_USER as string;
-const MONGODB_PASSWORD = process.env.MONGODB_PASSWORD as string;
+const uri = process.env.MONGODB_URI as string;
+// test uri
+if (!uri) throw new Error("Please add your Mongo URI to .env.local");
 
-if (!MONGODB_USER || !MONGODB_PASSWORD) {
-  throw new Error(
-    "Please define the MONGODB_USER and MONGODB_PASSWORD environment variable inside .env.local"
-  );
+declare global {
+  var _mongoClient: {
+    client: MongoClient | null;
+    promise: Promise<MongoClient> | null;
+  };
 }
 
-// ignore eslint no-explicit-any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const cached = (global as any).mongoose || { conn: null, promise: null };
+const globalForMongo = global as typeof global & {
+  _mongoClient: {
+    client: MongoClient | null;
+    promise: Promise<MongoClient> | null;
+  };
+};
 
-export async function connectDB() {
-  if (cached.conn) return cached.conn;
+if (!globalForMongo._mongoClient) {
+  globalForMongo._mongoClient = { client: null, promise: null };
+}
 
-  if (!cached.promise) {
-    cached.promise = mongoose.connect(
-      `mongodb+srv://nextauth:${MONGODB_PASSWORD}@${MONGODB_USER}.xvz7h6q.mongodb.net/?retryWrites=true&w=majority&appName=NextAuth`,
-      {
-        bufferCommands: false, // Enable buffering of commands
-      }
-    );
-
-    cached.conn = await cached.promise;
-    return cached.conn;
+export async function getMongoClient() {
+  const store = globalForMongo._mongoClient;
+  if (store.client) return store.client;
+  if (!store.promise) {
+    const client = new MongoClient(uri || "", {});
+    store.promise = client.connect().then((client) => {
+      store.client = client;
+      return client;
+    });
   }
+
+  return store.promise;
+}
+
+export async function getDb(dbName: string) {
+  const client = await getMongoClient();
+  return client.db(dbName);
 }
