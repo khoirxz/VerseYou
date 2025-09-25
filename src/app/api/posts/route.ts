@@ -21,6 +21,7 @@ export async function POST(req: Request) {
     spotifyTrack: parsed.data.spotifyTrackSchema,
     message: parsed.data.message,
     moodTags: parsed.data.moodTags ?? [],
+    toName: parsed.data.toName,
     createdAt: new Date(),
   };
 

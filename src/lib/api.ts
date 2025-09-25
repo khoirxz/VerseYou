@@ -1,17 +1,10 @@
-import { z } from "zod";
-import { createPostSchema } from "./validation";
+import {
+  createPostSchema,
+  type PostProps,
+  type CreatePostProps,
+} from "./validation";
 
-export type CreatePostInput = z.infer<typeof createPostSchema>;
-export type Post = {
-  _id: string;
-  userId: string;
-  spotifyTrack: CreatePostInput["spotifyTrackSchema"];
-  message: string;
-  moodTags: string[];
-  createdAt: string;
-};
-
-export async function postPost(input: CreatePostInput): Promise<Post> {
+export async function postPost(input: CreatePostProps): Promise<PostProps> {
   const parsed = createPostSchema.safeParse(input);
   if (!parsed.success) throw new Error("Input tidak valid");
 

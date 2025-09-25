@@ -6,7 +6,7 @@ async function main() {
   const db = client.db();
 
   await db.collection("users").createIndex({ email: 1 }, { unique: true });
-  await db.collection("posts").createIndex({ createdAt: -1 });
+  await db.collection("posts").createIndex({ toName: 1, createdAt: -1 });
   await db
     .collection("likes")
     .createIndex({ postId: 1, userId: 1 }, { unique: true });

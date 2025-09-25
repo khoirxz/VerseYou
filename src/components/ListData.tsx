@@ -4,7 +4,7 @@ import { Root } from "@/types/result";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Skeleton } from "./ui/skeleton";
-import { GreetingData } from "@/types/greeting";
+import { GreetingData } from "@/types/feeds";
 
 export default function ListData({
   data,
